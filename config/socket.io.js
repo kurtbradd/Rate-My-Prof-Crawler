@@ -5,7 +5,7 @@ module.exports = function (server) {
 	console.log('Socket.io Loaded');
 
 	var io = socketio.listen(server);
-	io.set('log level', 1);
+	// io.set('log level', 1);
 
 	//Socket on connect
 	io.sockets.on('connection', function (socket) {

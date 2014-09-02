@@ -4,7 +4,6 @@
  */
 
 var express = require('express');
-var socketio = require('socket.io');
 var http = require('http');
 var path = require('path');
 
@@ -25,13 +24,12 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
-//Start Socket.io
-var io = socketio.listen(server);
-io.set('log level', 1);
+var server = http.createServer(app).listen(app.get('port'), function(){
+  console.log('Express server listening on port ' + app.get('port'));
+});
+
+// Setup Socket.io
+var io = require('./config/socket.io.js')(server);
 
 // Load Routes
 require('./controllers/routes')(app, io);
-
-http.createServer(app).listen(app.get('port'), function(){
-  console.log('Express server listening on port ' + app.get('port'));
-});

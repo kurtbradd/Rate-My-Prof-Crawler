@@ -4,6 +4,7 @@
  */
 
 var express = require('express');
+var socketio = require('socket.io');
 var http = require('http');
 var path = require('path');
 
@@ -23,6 +24,10 @@ app.use(app.router);
 if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
+
+//Start Socket.io
+var io = socketio.listen(server);
+io.set('log level', 1);
 
 // Load Routes
 require('./controllers/routes')(app, io);

@@ -24,6 +24,9 @@ if ('development' == app.get('env')) {
   app.use(express.errorHandler());
 }
 
+// Load Routes
+require('./controllers/routes')(app, io);
+
 http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
 });

@@ -5,26 +5,20 @@
 
 	<div class="jumbotron">
 		
-		<h1 class="title">Indeed & Glassdoor Crawler</h1>
+		<h1 class="title">Rate My Prof Crawler</h1>
     
     <form>
 	    <div class="form-group">
-		    <label>Company Name</label>
-		    <input type="text" ng-model="review.company_name" class="form-control" placeholder="Company Name">
+		    <label>Professor Name</label>
+		    <input type="text" ng-model="review.name" class="form-control" placeholder="Professor Name">
 		  </div>
 		  <div class="form-group">
-		    <label>Indeed Url</label>
-		    <input type="text" ng-model="review.indeed_url" class="form-control" placeholder="Indeed Url">
-		    <p class="help-block">Ex. http://www.indeed.com/cmp/Google/reviews</p>
-		  </div>
-		  <div class="form-group">
-		    <label>Glassdoor Url</label>
-		    <input type="text" ng-model="review.glassdoor_url" class="form-control" placeholder="Glassdoor Url">
-		    <p class="help-block">Ex. http://www.glassdoor.ca/Reviews/Google-Reviews-E9079.htm</p>
+		    <label>rateMmyprofessors.com Url</label>
+		    <input type="text" ng-model="review.url" class="form-control" placeholder="rateMmyprofessors.com Url">
+		    <p class="help-block">Ex. http://www.ratemyprofessors.com/ShowRatings.jsp?tid=330921</p>
 		  </div>
     </form>
     <button class="btn btn-default btn-default" id="submit-button" ng-click="submit()">Submit Crawl</button>
-		<button class="btn btn-default btn-default" id="submit-button" ng-click="submitLong()">Submit Long Crawl</button>
     <div class="progress">
 			<div class="progress-bar" style="{{percentComplete()}}"></div>
 		</div>
@@ -41,13 +35,13 @@
 			<table class="table table-striped">
 				<thead>
 					<tr>
-						<th>Company Name</th>
+						<th>Professor Name</th>
 						<th>Date Created</th>
 						<th>Download Link</th>
 					</tr>
 				</thead>
 				<tbody>
-					<tr ng-repeat="review in reviews | filter:searchText">
+					<!-- <tr ng-repeat="review in reviews | filter:searchText">
 						<td>{{review.company_name}}</td>
 						<td>{{dateToString(review.created_at)}}</td>
 						<td>
@@ -55,7 +49,7 @@
 	  						<button ng-disabled="review.failed" class="btn btn-small btn-default">Download</button>
 							</a>
 						</td>
-					</tr>
+					</tr> -->
 				</tbody>
 			</table>
 		</div>

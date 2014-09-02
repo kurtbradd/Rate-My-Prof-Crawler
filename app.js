@@ -38,7 +38,7 @@ var server = http.createServer(app).listen(app.get('port'), function(){
 });
 
 // Setup Socket.io
-var io = require('./config/socket.io.js')(server);
+var io = require('./config/socket.io.js')(server, session.store);
 
 // Load Routes
 require('./controllers/routes')(app, io);

@@ -6,9 +6,7 @@ module.exports = function (express) {
 	var sessionStore = new MemoryStore();
 
 	return {
-		store : function () {
-			return sessionStore;
-		},
+		store: sessionStore,
 		config : {
 				store: sessionStore,
 				secret:'secret',

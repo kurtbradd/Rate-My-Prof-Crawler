@@ -9,11 +9,13 @@ var path = require('path');
 
 var app = express();
 
+var mongoose = require('mongoose');
+var db = mongoose.connect('mongodb://localhost:27017/RateMyProf');
+
 var session = require('./config/session.js')(express);
 
 // all environments
 app.set('port', process.env.PORT || 3000);
-// app.use(express.favicon());
 app.use(express.logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded());

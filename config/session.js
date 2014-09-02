@@ -9,12 +9,10 @@ module.exports = function (express) {
 		store : function () {
 			return sessionStore;
 		},
-		config : function () {
-			return {
+		config : {
 				store: sessionStore,
 				secret:'secret',
 				key:'express.sid'
-			};
-		}
+			}
 	}
 }

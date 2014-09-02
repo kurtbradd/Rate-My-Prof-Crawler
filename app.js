@@ -12,6 +12,9 @@ var app = express();
 var mongoose = require('mongoose');
 var db = mongoose.connect('mongodb://localhost:27017/RateMyProf');
 
+// Load Models
+require('./models/models')();
+
 var session = require('./config/session.js')(express);
 
 // all environments

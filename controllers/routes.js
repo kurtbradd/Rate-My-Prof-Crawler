@@ -6,7 +6,7 @@ module.exports = function (app, socketio) {
 
 	// ReviewController Routes
 	app.get('/api/reviews', ReviewController.getReviews);
-	app.post('/api/reviews', ReviewController.postReview);
+	app.post('/api/reviews', ReviewController.postReview(socketio));
 
 	// Catchall Route
 	app.get('*', function (req, res) {

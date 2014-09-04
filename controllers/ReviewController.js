@@ -34,19 +34,22 @@ module.exports = {
 				jobQueue.crawlProfessor(job, function (error, completed, progress) {
 					if (error) {
 						console.log('ReviewController: Crawl Fail');
-						// send error to client
-						// update saved_review attribute to failed
+						socketio.sockets.in(req.session.id).emit('crawlFailed', error);
+
+						saved_review.failed = true;
+	  				saved_review.save();
 					}
 
 					if (completed) {
 						console.log('ReviewController: Crawl Completed');
-						// send complete msg to client via socket
+						socketio.sockets.in(req.session.id).emit('crawlComplete', {});
 					}
 
 					if (progress) {
 						console.log('ReviewController: Crawl Progress: ' + progress);
-						// send progress to client via socket
+						socketio.sockets.in(req.session.id).emit('crawlProgress', progress);
 					}
+
 				});
 
 			})
@@ -56,6 +59,12 @@ module.exports = {
 	},
 
 	getReviews: function (req, res) {
-		return res.send(200, "Success");
+		fieldsToReturn = 'name created_at csv_file_path failed'; 
+		Review.find({}, fieldsToReturn, function(err, reviews) {
+			if (err) {
+				return res.send(400);
+			}
+			res.send(reviews);
+		});
 	}
 }

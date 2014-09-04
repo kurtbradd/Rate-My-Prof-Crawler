@@ -52,7 +52,7 @@ exports.createPaginationUrls = createPaginationUrls = function createPaginationU
 		var urls = [];
 		var numReviews = parseSiteForNumReviews(data)
 		var numPages = Math.ceil((numReviews/20));
-		_(_.range(1, numPages)).forEach(function (num) {
+		_(_.range(1, numPages+1)).forEach(function (num) {
 			urls.push(url + "&pageNo=" + num)
 		})
 		deferred.resolve(urls);

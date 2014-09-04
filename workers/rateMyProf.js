@@ -1,18 +1,35 @@
+var	redis = require("redis");
+var rclient = redis.createClient();
 var request = require('request');
 var cheerio = require('cheerio');
 var _ 			= require('lodash');
 var Q 			= require('q');
 
+rclient.on("connect", function () {
+	console.log('Redis Connected');
+});
+
 exports.crawlReviews = crawlReviews = function crawlReviews (url) {
 	var deferred = Q.defer();
-	getURL(url)
-	.then(function (data) {
-		var reviews = parseSiteForReviews(data);
-		deferred.resolve(reviews);
-	})
-	.fail(function (error) {
-		deferred.reject(error);
-	})
+	rclient.get(url, function(err, reply) {
+		if (reply) {
+			console.log('Redis Hit');
+			return deferred.resolve(JSON.parse(reply));
+		} 
+		else {
+			console.log('Redis Miss');
+			getURL(url)
+			.then(function (data) {
+				var reviews = parseSiteForReviews(data);
+				rclient.set(url, JSON.stringify(reviews));
+				rclient.expire(url, 86400); //1day in sec. 
+				deferred.resolve(reviews);
+			})
+			.fail(function (error) {
+				deferred.reject(error);
+			})
+		}
+	});
 	return deferred.promise;
 }
 
@@ -121,5 +138,5 @@ function parseSiteForProfInfo(html) {
 
 crawlReviews("http://www.ratemyprofessors.com/ShowRatings.jsp?tid=10844")
 .then(function(data){
-	console.log(data);
+	// console.log(data);
 })

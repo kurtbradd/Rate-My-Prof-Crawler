@@ -8,12 +8,16 @@ if (cluster.isMaster) {
 }
 else {
 	console.log("Cluster: " + cluster.worker.id + " - ready.");
+	var mongoose 		= require('mongoose');
+	mongoose.connect('mongodb://localhost:27017/RateMyProf');
+	var Review 			= require('../models/Review.js');
 	var rateMyProf 	= require('./rateMyProf.js');
 	var kue 				= require("kue-send");
 	var json2csv 		= require('json2csv');
 	var _ 					= require('lodash');
 	var	jobs 				= kue.createQueue();
 	var	jobsTwo 		= kue.createQueue();
+	var fs 					= require('fs');
 	var Q 					= require('q');
 
 	jobs.process('crawlProfessor', 1, function (job, done){
@@ -47,18 +51,23 @@ else {
 				crawl_job.save();
 			})
 
-			console.log('here');
 			Q.all(jobPromises)
 			.then(function(data) {
+				
 				// Flatten all the review arrays
-				var reviews = _.reduce(data, function(a, b) {
-				  return a.concat(b);
-				});
+				var reviews = flattenNestedArray(data);
 
 				parseReviewsToCSV(job.data.id, reviews)
 				.then(function (fileName) {
-					console.log(fileName);
-					done()
+					saveReview(fileName, job.data.id)
+					.then(function (review) {
+						done()
+					})
+					//saving filepath failed
+					.fail(function (error) {
+						done(error)
+					})
+
 				})
 				// csv creation failed
 				.fail(function (error) {
@@ -106,7 +115,7 @@ else {
 		  	deferred.reject(error);
 		  } else {
 		  	var fileName = reviewID + '_review.csv';
-		  	var filePath = '../public/render/reviews/'+ fileName;
+		  	var filePath = '../public/reviews/'+ fileName;
 		  	fs.writeFile(filePath, csv, function (error) {
 		    	if (error){
 		    		return deferred.reject(error);
@@ -117,8 +126,30 @@ else {
 		});	
 		return deferred.promise;
 	}
-}
 
+	function saveReview(savedFilePath, reviewID) {
+		var deferred = Q.defer();
+		Review.findById(reviewID, function (error, review){
+			if (error) {
+				return deferred.reject(error);
+			}
+			review.csv_file_path = savedFilePath;
+			review.save(function (error, review){
+				if (error){
+					deferred.reject(error);
+				}
+				deferred.resolve(review);
+			})
+		});
+		return deferred.promise;
+	}
+
+	function flattenNestedArray(array) {
+		return _.reduce(array, function(a, b) {
+			return a.concat(b);
+		});
+	}
+}
 
 process.once( 'SIGINT', function (sig) {
 	jobs.shutdown(function(err) {

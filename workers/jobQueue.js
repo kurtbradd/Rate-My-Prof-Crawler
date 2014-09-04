@@ -1,13 +1,11 @@
-var	kue = require('kue');
-var	jobs = kue.createQueue();
+var	kue 	= require('kue');
+var	jobs 	= kue.createQueue();
 
 kue.app.listen(3001);
-
 console.log('Job Queue Loaded');
 
 // cb(error, completed, progress)
 exports.crawlProfessor = function crawlProfessor (jobData, cb) {
-	console.log('job queue got job');
 	var job = jobs.create('crawlProfessor', jobData);
 	job.attempts(1);
 	job

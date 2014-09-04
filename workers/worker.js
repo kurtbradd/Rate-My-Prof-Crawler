@@ -8,11 +8,12 @@ if (cluster.isMaster) {
 }
 else {
 	console.log("Cluster: " + cluster.worker.id + " - ready.");
+	var rateMyProf 	= require('./rateMyProf.js');
 	var kue 				= require("kue-send");
+	var json2csv 		= require('json2csv');
+	var _ 					= require('lodash');
 	var	jobs 				= kue.createQueue();
 	var	jobsTwo 		= kue.createQueue();
-	var json2csv 		= require('json2csv');
-	var rateMyProf 	= require('./rateMyProf.js');
 	var Q 					= require('q');
 
 	jobs.process('crawlProfessor', 1, function (job, done){
@@ -27,7 +28,6 @@ else {
 			var profInfo = data[0];
 			var urls = data[1];
 			
-			var reviews = []
 			var jobPromises = [];
 			var count = 0;
 
@@ -39,11 +39,7 @@ else {
 				jobPromises.push(deferredJob.promise);
 				crawl_job.on('result', function (reviewsArray) {
 					job.progress(++count,jobPromises.length);
-					reviews = reviews.concat(reviewsArray);
-					deferredJob.resolve();
-				})
-				crawl_job.on('failed attempt', function () {
-					console.log('Failed Crawl Job Attempt')
+					deferredJob.resolve(reviewsArray);
 				})
 				crawl_job.on('failed', function () {
 					deferredJob.reject();
@@ -54,14 +50,29 @@ else {
 			console.log('here');
 			Q.all(jobPromises)
 			.then(function(data) {
-				// save to csv
-				done()
+				// Flatten all the review arrays
+				var reviews = _.reduce(data, function(a, b) {
+				  return a.concat(b);
+				});
+
+				parseReviewsToCSV(job.data.id, reviews)
+				.then(function (fileName) {
+					console.log(fileName);
+					done()
+				})
+				// csv creation failed
+				.fail(function (error) {
+					done(error);
+				})
+
 			})
+			// a job promise failed
 			.fail(function (error) {
 				done(error);
 			})
 
 		})
+		// cannot get profInfo or URLS
 		.fail(function (error) {
 			done(error)
 		})
@@ -78,7 +89,36 @@ else {
 		})
 	});
 
+	function parseReviewsToCSV(reviewID, data) {
+		var deferred = Q.defer();
+		csvConfig = {
+			data: data, 
+			
+			fields: ['date', 'course', 'quality', 'easiness', 'helpfulness',
+			'clarity', 'interest', 'grade', 'description'],
+
+			fieldNames: ['date', 'course', 'quality', 'easiness', 'helpfulness',
+			'clarity', 'interest', 'grade', 'description']
+		}
+
+		json2csv(csvConfig, function (error, csv) {
+		  if (error) {
+		  	deferred.reject(error);
+		  } else {
+		  	var fileName = reviewID + '_review.csv';
+		  	var filePath = '../public/render/reviews/'+ fileName;
+		  	fs.writeFile(filePath, csv, function (error) {
+		    	if (error){
+		    		return deferred.reject(error);
+		    	}
+		    	deferred.resolve(fileName);
+		  	});
+			}
+		});	
+		return deferred.promise;
+	}
 }
+
 
 process.once( 'SIGINT', function (sig) {
 	jobs.shutdown(function(err) {

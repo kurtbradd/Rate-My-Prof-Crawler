@@ -11,6 +11,7 @@ else {
 	var kue 				= require("kue-send");
 	var	jobs 				= kue.createQueue();
 	var	jobsTwo 		= kue.createQueue();
+	var json2csv 		= require('json2csv');
 	var rateMyProf 	= require('./rateMyProf.js');
 	var Q 					= require('q');
 

@@ -21,20 +21,15 @@ else {
 	var Q 					= require('q');
 
 	jobs.process('crawlProfessor', 1, function (job, done){
-
 		var infoPromise = rateMyProf.crawlProfessorInfo(job.data.url);
 		var urlsPromise = rateMyProf.createPaginationUrls(job.data.url);
-
 		// after prof info and urls recieved
 		Q.all([infoPromise, urlsPromise])
 		.then(function (data) {
-
 			var profInfo = data[0];
 			var urls = data[1];
-			
 			var jobPromises = [];
 			var count = 0;
-
 			//create promises for each url to return
 			urls.forEach(function(url) {
 				var deferredJob = Q.defer();
@@ -53,10 +48,8 @@ else {
 
 			Q.all(jobPromises)
 			.then(function(data) {
-				
 				// Flatten all the review arrays
 				var reviews = flattenNestedArray(data);
-
 				parseReviewsToCSV(job.data.id, reviews)
 				.then(function (fileName) {
 					saveReview(fileName, job.data.id)
@@ -67,19 +60,16 @@ else {
 					.fail(function (error) {
 						done(error)
 					})
-
 				})
 				// csv creation failed
 				.fail(function (error) {
 					done(error);
 				})
-
 			})
 			// a job promise failed
 			.fail(function (error) {
 				done(error);
 			})
-
 		})
 		// cannot get profInfo or URLS
 		.fail(function (error) {

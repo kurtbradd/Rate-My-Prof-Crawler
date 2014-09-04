@@ -17,9 +17,6 @@ else {
 
 
 	jobs.process('crawlProfessor', 1, function (job, done){
-		// console.log('got crawlProfessor, finished job');
-		// console.log(cluster.worker.id);
-
 		var infoPromise = rateMyProf.crawlProfessorInfo(job.data.url);
 		var urlsPromise = rateMyProf.createPaginationUrls(job.data.url);
 
@@ -32,6 +29,7 @@ else {
 			
 			var reviews = []
 			var jobPromises = [];
+			var count = 0;
 
 			//create promises for each url to return
 			urls.forEach(function(url) {
@@ -40,6 +38,7 @@ else {
 				crawl_job.delay(100);
 				jobPromises.push(deferredJob.promise);
 				crawl_job.on('result', function (reviewsArray) {
+					job.progress((++count/jobPromises.length),100);
 					reviews = reviews.concat(reviewsArray);
 					deferredJob.resolve();
 				})
@@ -58,6 +57,7 @@ else {
 				// all reviews should be here
 				console.log(jobPromises.length);
 				console.log(reviews.length);
+				// save all data into a csv.
 				done()
 			})
 			.fail(function (error) {

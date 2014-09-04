@@ -135,8 +135,3 @@ function parseSiteForProfInfo(html) {
 		'easiness': prof_easiness
 	}
 }
-
-crawlReviews("http://www.ratemyprofessors.com/ShowRatings.jsp?tid=10844")
-.then(function(data){
-	// console.log(data);
-})

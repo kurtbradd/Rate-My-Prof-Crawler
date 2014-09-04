@@ -13,11 +13,9 @@ exports.crawlReviews = crawlReviews = function crawlReviews (url) {
 	var deferred = Q.defer();
 	rclient.get(url, function(err, reply) {
 		if (reply) {
-			console.log('Redis Hit');
 			return deferred.resolve(JSON.parse(reply));
 		} 
 		else {
-			console.log('Redis Miss');
 			getURL(url)
 			.then(function (data) {
 				var reviews = parseSiteForReviews(data);

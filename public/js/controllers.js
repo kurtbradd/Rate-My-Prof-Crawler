@@ -6,7 +6,6 @@ module.controller('DashboardCtrl', ['$scope', 'Review', function($scope, Review)
 
 	//in production use actual host name
 	var socket = io.connect('http://localhost');
-	getReviews();
 
 	$scope.reviews = [];
 	$scope.crawlProgress = 0;
@@ -17,6 +16,7 @@ module.controller('DashboardCtrl', ['$scope', 'Review', function($scope, Review)
 
 	socket.on('crawlComplete', function () {
 		console.log('Crawl Complete');
+		$scope.getReviews();
 		$scope.crawlProgress = 0;
 		$scope.$apply();
 		window.alert('Completed');
@@ -24,6 +24,7 @@ module.controller('DashboardCtrl', ['$scope', 'Review', function($scope, Review)
 
 	socket.on('crawlFailed', function (error) {
 		console.log('Crawl Failed with Error: ' + error);
+		$scope.getReviews();
 		$scope.crawlProgress = 0;
 		$scope.$apply();
 		window.alert(error || 'Something went wrong! :(');
@@ -52,7 +53,7 @@ module.controller('DashboardCtrl', ['$scope', 'Review', function($scope, Review)
 		})
 	}
 
-	function getReviews () {
+	$scope.getReviews = function () {
 		Review.getReviews()
 		.success(function(data) {
 			$scope.reviews = data.reverse();
@@ -75,5 +76,7 @@ module.controller('DashboardCtrl', ['$scope', 'Review', function($scope, Review)
 		$scope.formData.name = null;
 		$scope.formData.url = null;
 	}
+
+	$scope.getReviews();
 
 }])

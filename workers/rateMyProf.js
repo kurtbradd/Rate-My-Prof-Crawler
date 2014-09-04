@@ -1,4 +1,4 @@
-var	redis = require("redis");
+var	redis 	= require("redis");
 var rclient = redis.createClient();
 var request = require('request');
 var cheerio = require('cheerio');

@@ -68,12 +68,12 @@ else {
 			})
 			// a job promise failed
 			.fail(function (error) {
-				done(error);
+				done(error || "Server rejected crawl!");
 			})
 		})
 		// cannot get profInfo or URLS
 		.fail(function (error) {
-			done(error)
+			done(error || "Cannot get professor info!")
 		})
 	});
 

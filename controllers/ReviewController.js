@@ -22,8 +22,6 @@ module.exports = {
 					console.log(err);
 					return res.send(400, err);
 				}
-
-				console.log('review data saved');
 				
 				var job = {
 					id: saved_review._id,

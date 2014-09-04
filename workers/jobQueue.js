@@ -13,7 +13,7 @@ exports.crawlProfessor = function crawlProfessor (jobData, cb) {
 		cb(null, true);
 	})
 	.on('failed', function (error){
-		cb(error)
+		cb(error || "Something went wrong!");
 	})
 	.on('progress', function (progress){
     cb(null, null, progress);

@@ -41,15 +41,15 @@
 					</tr>
 				</thead>
 				<tbody>
-					<!-- <tr ng-repeat="review in reviews | filter:searchText">
-						<td>{{review.company_name}}</td>
+					<tr ng-repeat="review in reviews | filter:searchText">
+						<td>{{review.name}}</td>
 						<td>{{dateToString(review.created_at)}}</td>
 						<td>
 							<a target="_self" ng-href="/public/render/reviews/{{review.csv_file_path}}?company_name={{review.company_name}}">
 	  						<button ng-disabled="review.failed" class="btn btn-small btn-default">Download</button>
 							</a>
 						</td>
-					</tr> -->
+					</tr>
 				</tbody>
 			</table>
 		</div>

@@ -8,15 +8,14 @@ if (cluster.isMaster) {
 }
 else {
 	console.log("Cluster: " + cluster.worker.id + " - ready.");
-	// var	kue 				= require("kue");
 	var kue 				= require("kue-send");
 	var	jobs 				= kue.createQueue();
 	var	jobsTwo 		= kue.createQueue();
 	var rateMyProf 	= require('./rateMyProf.js');
 	var Q 					= require('q');
 
-
 	jobs.process('crawlProfessor', 1, function (job, done){
+
 		var infoPromise = rateMyProf.crawlProfessorInfo(job.data.url);
 		var urlsPromise = rateMyProf.createPaginationUrls(job.data.url);
 
@@ -35,10 +34,10 @@ else {
 			urls.forEach(function(url) {
 				var deferredJob = Q.defer();
 				var crawl_job = jobs.create('crawlProfessorReviews', {'url': url});
-				crawl_job.delay(100);
+				crawl_job.attempts(15);
 				jobPromises.push(deferredJob.promise);
 				crawl_job.on('result', function (reviewsArray) {
-					job.progress((++count/jobPromises.length),100);
+					job.progress(++count,jobPromises.length);
 					reviews = reviews.concat(reviewsArray);
 					deferredJob.resolve();
 				})
@@ -54,10 +53,7 @@ else {
 			console.log('here');
 			Q.all(jobPromises)
 			.then(function(data) {
-				// all reviews should be here
-				console.log(jobPromises.length);
-				console.log(reviews.length);
-				// save all data into a csv.
+				// save to csv
 				done()
 			})
 			.fail(function (error) {
@@ -70,7 +66,7 @@ else {
 		})
 	});
 
-	jobsTwo.process('crawlProfessorReviews', 1, function (job, done){
+	jobsTwo.process('crawlProfessorReviews', 4, function (job, done){
 		rateMyProf.crawlReviews(job.data.url)
 		.then(function (data) {
 			job.send("result", data);
@@ -80,6 +76,7 @@ else {
 			done(error);
 		})
 	});
+
 }
 
 process.once( 'SIGINT', function (sig) {
